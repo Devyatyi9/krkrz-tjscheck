@@ -36,9 +36,8 @@ tjscheck <file.tjs>
 
 ## Source
 
-Derived from `D:\ProjectsD\krkrz` (KiriKiri-Z). The `tjs2/` directory is the core TJS2 engine; `main.cpp` is the standalone checker entry point.
+Derived from `KiriKiri-Z`. The `tjs2/` directory is the core TJS2 engine; `main.cpp` is the standalone checker entry point.
 
 ## References
 
 - `tjs2/tjsErrorInc.h` — English error messages (translated from `tjsError_jp.h` in tjsdisasm)
-- `F:\ProjectsF\KiriKiri-Z-Neuro-Integration\docs\TJSCHECK.md` — full documentation including ATRI edge cases and mass testing
