@@ -1,17 +1,44 @@
-# 吉里吉里Z
+# tjscheck — Standalone TJS2 Syntax Checker
 
-吉里吉里Zは吉里吉里2フォークプロジェクトです。  
+A minimal command-line TJS2 syntax validator extracted from [KiriKiri-Z](https://github.com/krkrz/krkrz).
 
-2016/08/18  
-リポジトリの分割は一通り完了。  
-未追加のプラグインは各 Author が追加予定。
-今回 external 内の外部ライブラリをサブモジュール化。  
-external の各フォルダが空の場合は、サブモジュールのアップデートを。  
-今後、 Android 版開発に伴い、ディレクトリ構成が変更される可能性があります。
+Checks TJS2 script files for syntax errors without executing them.
 
-2016/08/09  
-プラグイン等全て一つのリポジトリに入れていたものを削除し、このリポジトリには本体のソースコードのみ入れるようになりました。  
-旧ディレクトリ構成は <https://github.com/krkrz/krkrz/tree/last_hodgepodge_repository> ブランチを参照してください。
+## Usage
 
-従来の構成に近い全てを含んだリポジトリは、<https://github.com/krkrz/krkrz_dev> になりました。  
-各プラグイン等をサブモジュールとして参照し、独立した形で管理するようになっています。
+```
+tjscheck <file.tjs>
+```
+
+- **Exit 0, stdout `OK`** — valid TJS2 syntax (for standalone scripts)
+- **Exit 1, stderr `Syntax error at line N`** — invalid syntax
+
+## Features
+
+- Supports UTF-16 LE (BOM), UTF-8 with BOM, and plain UTF-8 encoding (auto-detected)
+- No KiriKiri runtime required — pure syntax analysis
+- English error messages (based on tjsError_jp.h from tjsdisasm)
+- Built with `TJS_NO_REGEXP` (Oniguruma excluded) — no impact for scripts that don't use Regexp
+- ~1.3 MB binary (Release, static link)
+
+## Limitations
+
+- **ATRI-style fragments** — `function(x){...}` and `%[...]` at top level without `;` are valid in-game (via eval/module) but rejected by standalone parsing. These are not bugs — they require the game's runtime context.
+- **No execution** — `Parse()` only, no bytecode interpretation
+- **No TJS-level tag hooks** — KAG tag interception (`kag.addHook()`, `kag.conductor.onTag`) is a separate concern
+- **No KAG validation** — `.ks` scenario files are not checked
+
+## Building
+
+- **Solution:** `vcproj/tjscheck.vcxproj` (Visual Studio, Windows x86)
+- **Configurations:** Debug → `tjscheck_d.exe`, Release → `tjscheck.exe`
+- **Defines:** `_UNICODE`, `UNICODE`, `TJS_NO_REGEXP`, `_CRT_SECURE_NO_WARNINGS`
+
+## Source
+
+Derived from `D:\ProjectsD\krkrz` (KiriKiri-Z). The `tjs2/` directory is the core TJS2 engine; `main.cpp` is the standalone checker entry point.
+
+## References
+
+- `tjs2/tjsErrorInc.h` — English error messages (translated from `tjsError_jp.h` in tjsdisasm)
+- `F:\ProjectsF\KiriKiri-Z-Neuro-Integration\docs\TJSCHECK.md` — full documentation including ATRI edge cases and mass testing

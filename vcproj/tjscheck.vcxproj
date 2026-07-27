@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <RootNamespace>tjscheck</RootNamespace>
+    <ProjectName>tjscheck</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\</OutDir>
+    <TargetName>tjscheck_d</TargetName>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\</OutDir>
+    <TargetName>tjscheck</TargetName>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_UNICODE;UNICODE;__WIN32__;NO_STRICT;TJS_TEXT_OUT_CRLF;TJS_JP_LOCALIZED;TJS_NO_REGEXP;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../tjs2;../utils;../base;../environ/win32;../utils/win32;../external/onig/src;../;./;</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_UNICODE;UNICODE;__WIN32__;NO_STRICT;TJS_TEXT_OUT_CRLF;TJS_JP_LOCALIZED;TJS_NO_REGEXP;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../tjs2;../utils;../base;../environ/win32;../utils/win32;../external/onig/src;../;./;</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tjs2\tjs.cpp" />
+    <ClCompile Include="..\tjs2\tjs.tab.cpp" />
+    <ClCompile Include="..\tjs2\tjsArray.cpp" />
+    <ClCompile Include="..\tjs2\tjsBinarySerializer.cpp" />
+    <ClCompile Include="..\tjs2\tjsByteCodeLoader.cpp" />
+    <ClCompile Include="..\tjs2\tjsCompileControl.cpp" />
+    <ClCompile Include="..\tjs2\tjsConfig.cpp" />
+    <ClCompile Include="..\tjs2\tjsConstArrayData.cpp" />
+    <ClCompile Include="..\tjs2\tjsDate.cpp" />
+    <ClCompile Include="..\tjs2\tjsdate.tab.cpp" />
+    <ClCompile Include="..\tjs2\tjsDateParser.cpp" />
+    <ClCompile Include="..\tjs2\tjsDebug.cpp" />
+    <ClCompile Include="..\tjs2\tjsDictionary.cpp" />
+    <ClCompile Include="..\tjs2\tjsDisassemble.cpp" />
+    <ClCompile Include="..\tjs2\tjsError.cpp" />
+    <ClCompile Include="..\tjs2\tjsException.cpp" />
+    <ClCompile Include="..\tjs2\tjsGlobalStringMap.cpp" />
+    <ClCompile Include="..\tjs2\tjsInterCodeExec.cpp" />
+    <ClCompile Include="..\tjs2\tjsInterCodeGen.cpp" />
+    <ClCompile Include="..\tjs2\tjsInterface.cpp" />
+    <ClCompile Include="..\tjs2\tjsLex.cpp" />
+    <ClCompile Include="..\tjs2\tjsMath.cpp" />
+    <ClCompile Include="..\tjs2\tjsMessage.cpp" />
+    <ClCompile Include="..\tjs2\tjsMT19937ar-cok.cpp" />
+    <ClCompile Include="..\tjs2\tjsNamespace.cpp" />
+    <ClCompile Include="..\tjs2\tjsNative.cpp" />
+    <ClCompile Include="..\tjs2\tjsObject.cpp" />
+    <ClCompile Include="..\tjs2\tjsObjectExtendable.cpp" />
+    <ClCompile Include="..\tjs2\tjsOctPack.cpp" />
+    <ClCompile Include="..\tjs2\tjspp.tab.cpp" />
+    <ClCompile Include="..\tjs2\tjsRandomGenerator.cpp" />
+    <!-- tjsRegExp.cpp excluded — not needed for syntax-only check (TJS_NO_REGEXP) -->
+    <ClCompile Include="..\tjs2\tjsScriptBlock.cpp" />
+    <ClCompile Include="..\tjs2\tjsScriptCache.cpp" />
+    <ClCompile Include="..\tjs2\tjsString.cpp" />
+    <ClCompile Include="..\tjs2\tjsUtils.cpp" />
+    <ClCompile Include="..\tjs2\tjsVariant.cpp" />
+    <ClCompile Include="..\tjs2\tjsVariantString.cpp" />
+    <ClCompile Include="..\utils\uni_cp932.cpp" />
+    <ClCompile Include="..\utils\cp932_uni.cpp" />
+    <ClCompile Include="..\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\targetver.h" />
+    <ClInclude Include="..\tjs2\tjs.h" />
+    <ClInclude Include="..\tjs2\tjs.tab.hpp" />
+    <ClInclude Include="..\tjs2\tjsArray.h" />
+    <ClInclude Include="..\tjs2\tjsBinarySerializer.h" />
+    <ClInclude Include="..\tjs2\tjsByteCodeLoader.h" />
+    <ClInclude Include="..\tjs2\tjsCommHead.h" />
+    <ClInclude Include="..\tjs2\tjsCompileControl.h" />
+    <ClInclude Include="..\tjs2\tjsConfig.h" />
+    <ClInclude Include="..\tjs2\tjsConstArrayData.h" />
+    <ClInclude Include="..\tjs2\tjsDate.h" />
+    <ClInclude Include="..\tjs2\tjsdate.tab.hpp" />
+    <ClInclude Include="..\tjs2\tjsDateParser.h" />
+    <ClInclude Include="..\tjs2\tjsDebug.h" />
+    <ClInclude Include="..\tjs2\tjsDictionary.h" />
+    <ClInclude Include="..\tjs2\tjsError.h" />
+    <ClInclude Include="..\tjs2\tjsErrorDefs.h" />
+    <ClInclude Include="..\tjs2\tjsException.h" />
+    <ClInclude Include="..\tjs2\tjsGlobalStringMap.h" />
+    <ClInclude Include="..\tjs2\tjsHashSearch.h" />
+    <ClInclude Include="..\tjs2\tjsInterCodeExec.h" />
+    <ClInclude Include="..\tjs2\tjsInterCodeGen.h" />
+    <ClInclude Include="..\tjs2\tjsInterface.h" />
+    <ClInclude Include="..\tjs2\tjsLex.h" />
+    <ClInclude Include="..\tjs2\tjsMath.h" />
+    <ClInclude Include="..\tjs2\tjsMessage.h" />
+    <ClInclude Include="..\tjs2\tjsMT19937ar-cok.h" />
+    <ClInclude Include="..\tjs2\tjsNamespace.h" />
+    <ClInclude Include="..\tjs2\tjsNative.h" />
+    <ClInclude Include="..\tjs2\tjsObject.h" />
+    <ClInclude Include="..\tjs2\tjsObjectExtendable.h" />
+    <ClInclude Include="..\tjs2\tjsOctPack.h" />
+    <ClInclude Include="..\tjs2\tjspp.tab.hpp" />
+    <ClInclude Include="..\tjs2\tjsRandomGenerator.h" />
+    <ClInclude Include="..\tjs2\tjsRegExp.h" />
+    <ClInclude Include="..\tjs2\tjsScriptBlock.h" />
+    <ClInclude Include="..\tjs2\tjsScriptCache.h" />
+    <ClInclude Include="..\tjs2\tjsString.h" />
+    <ClInclude Include="..\tjs2\tjsTypes.h" />
+    <ClInclude Include="..\tjs2\tjsUtils.h" />
+    <ClInclude Include="..\tjs2\tjsVariant.h" />
+    <ClInclude Include="..\tjs2\tjsVariantString.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
