@@ -27,6 +27,7 @@ tjscheck <file.tjs>
 - **No execution** — `Parse()` only, no bytecode interpretation
 - **No TJS-level tag hooks** — KAG tag interception (`kag.addHook()`, `kag.conductor.onTag`) is a separate concern
 - **No KAG validation** — `.ks` scenario files are not checked
+- **Compiled bytecode** (`TJS2` magic signature) is auto-detected and reported as `OK (compiled bytecode)`
 
 ## Building
 

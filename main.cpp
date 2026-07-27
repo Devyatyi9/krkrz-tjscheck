@@ -12,6 +12,7 @@
 #include "tjsDebug.h"
 #include "tjsError.h"
 #include "tjsException.h"
+#include "tjsByteCodeLoader.h"
 
 // Stubs for features not needed in syntax-only mode
 namespace TJS {
@@ -47,6 +48,12 @@ int main(int argc, char *argv[]) {
     fread(buf.data(), 1, size, f);
     buf[size] = 0;
     fclose(f);
+
+    // Check for compiled TJS2 bytecode
+    if (size >= 8 && TJS::tTJSByteCodeLoader::IsTJS2ByteCode((const tjs_uint8 *)buf.data())) {
+        fprintf(stdout, "OK (compiled bytecode)\n");
+        return 0;
+    }
 
     // Detect encoding and convert to UTF-16
     std::vector<wchar_t> wideBuf;
