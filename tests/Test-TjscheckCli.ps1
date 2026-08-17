@@ -108,6 +108,15 @@ try {
         [System.IO.File]::WriteAllBytes($temporaryFile, $Utf8NoBom.GetBytes($source))
         Assert-Result "invalid $($lineEnding[0]) file" (Invoke-Checker @($temporaryFile)) 1 '^$' ':2:'
     }
+
+    [System.IO.File]::WriteAllBytes($temporaryFile, $validScript)
+    $exclusiveHandle = [System.IO.File]::Open($temporaryFile, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
+    try {
+        Assert-Result 'unreadable file' (Invoke-Checker @($temporaryFile)) 2 '^$' 'cannot open'
+    }
+    finally {
+        $exclusiveHandle.Dispose()
+    }
 }
 finally {
     Remove-Item -LiteralPath $temporaryDirectory -Recurse -Force -ErrorAction SilentlyContinue
