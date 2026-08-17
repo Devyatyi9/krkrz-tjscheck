@@ -29,9 +29,7 @@ tjscheck --stdin
 - Supports UTF-16 LE (BOM), UTF-8 with BOM, and plain UTF-8 encoding (auto-detected)
 - No KiriKiri runtime required — pure syntax analysis
 - English error messages (based on tjsError_jp.h from tjsdisasm)
-- Built with `TJS_NO_REGEXP` (Oniguruma excluded). Regexp literals can still be
-  syntactically accepted, but this checker does not validate RegExp runtime
-  availability.
+- Includes Oniguruma-backed TJS `RegExp` runtime support.
 - ~1.3 MB binary (Release, static link)
 
 ## Limitations
@@ -42,13 +40,15 @@ tjscheck --stdin
 - **No KAG validation** — `.ks` scenario files are not checked
 - **Compiled bytecode** (`TJS2` magic signature) is auto-detected and reported as `OK (compiled bytecode)`
 - **No runtime compatibility check** - successful syntax checking does not prove
-  that all classes, native functions, or RegExp are available at runtime
+  that all classes or native functions are available in a target game runtime
 
 ## Building
 
 - **Solution:** `vcproj/tjscheck.vcxproj` (Visual Studio, Windows x86)
 - **Configurations:** Debug → `tjscheck_d.exe`, Release → `tjscheck.exe`
-- **Defines:** `_UNICODE`, `UNICODE`, `TJS_NO_REGEXP`, `_CRT_SECURE_NO_WARNINGS`
+- **Defines:** `_UNICODE`, `UNICODE`, `_CRT_SECURE_NO_WARNINGS`
+- **Dependencies:** `external/onig/onig.vcxproj` is built automatically and
+  linked into the checker as a static library.
 
 ## Testing
 

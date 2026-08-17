@@ -53,31 +53,31 @@ function Assert-Result {
     }
 }
 
-$warning = 'TJS_NO_REGEXP'
-Assert-Result 'help' (Invoke-Checker @('--help')) 0 'TJS_NO_REGEXP' '^$'
-Assert-Result 'valid expression' (Invoke-Checker @('-e', '1 + 2 * 3')) 0 '^OK\r?\n$' $warning
-Assert-Result 'Unicode expression' (Invoke-Checker @('-e', '"日本語" + "тест"')) 0 '^OK\r?\n$' $warning
+$noStderr = '^$'
+Assert-Result 'help' (Invoke-Checker @('--help')) 0 '--expression' $noStderr
+Assert-Result 'valid expression' (Invoke-Checker @('-e', '1 + 2 * 3')) 0 '^OK\r?\n$' $noStderr
+Assert-Result 'Unicode expression' (Invoke-Checker @('-e', '"日本語" + "тест"')) 0 '^OK\r?\n$' $noStderr
 Assert-Result 'invalid expression' (Invoke-Checker @('--expression', '1 +')) 1 '^$' '<expression>:1:'
-Assert-Result 'regexp expression warning' (Invoke-Checker @('-e', '/abc/i')) 0 '^OK\r?\n$' $warning
+Assert-Result 'regexp expression' (Invoke-Checker @('-e', '/abc/i')) 0 '^OK\r?\n$' $noStderr
 Assert-Result 'usage error' (Invoke-Checker @('--stdin', '-e', '1')) 2 '^$' 'Usage:'
 
 $validScript = $Utf8NoBom.GetBytes("var x = 1;`n")
 $invalidScript = $Utf8NoBom.GetBytes("var x = ;`n")
 $utf16Script = $Utf16LeBom.GetPreamble() + $Utf16LeBom.GetBytes("var x = 1;`n")
-Assert-Result 'valid stdin' (Invoke-Checker @('-s') $validScript) 0 '^OK\r?\n$' $warning
+Assert-Result 'valid stdin' (Invoke-Checker @('-s') $validScript) 0 '^OK\r?\n$' $noStderr
 Assert-Result 'invalid stdin' (Invoke-Checker @('--stdin') $invalidScript) 1 '^$' '<stdin>:'
-Assert-Result 'UTF-16 stdin' (Invoke-Checker @('--stdin') $utf16Script) 0 '^OK\r?\n$' $warning
+Assert-Result 'UTF-16 stdin' (Invoke-Checker @('--stdin') $utf16Script) 0 '^OK\r?\n$' $noStderr
 
 $temporaryFile = Join-Path ([System.IO.Path]::GetTempPath()) "tjscheck-$PID.tjs"
 try {
     [System.IO.File]::WriteAllBytes($temporaryFile, $validScript)
-    Assert-Result 'valid file' (Invoke-Checker @($temporaryFile)) 0 '^OK\r?\n$' $warning
+    Assert-Result 'valid file' (Invoke-Checker @($temporaryFile)) 0 '^OK\r?\n$' $noStderr
 
     [System.IO.File]::WriteAllBytes($temporaryFile, $invalidScript)
     Assert-Result 'invalid file' (Invoke-Checker @($temporaryFile)) 1 '^$' ':1:'
 
     [System.IO.File]::WriteAllBytes($temporaryFile, $utf16Script)
-    Assert-Result 'UTF-16 file' (Invoke-Checker @($temporaryFile)) 0 '^OK\r?\n$' $warning
+    Assert-Result 'UTF-16 file' (Invoke-Checker @($temporaryFile)) 0 '^OK\r?\n$' $noStderr
 }
 finally {
     Remove-Item -LiteralPath $temporaryFile -Force -ErrorAction SilentlyContinue

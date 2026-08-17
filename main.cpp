@@ -64,12 +64,6 @@ void PrintUsage(FILE *stream) {
 		"  -h, --help               Show this help\n"
 		"\n"
 		"Exit codes: 0 valid syntax, 1 syntax error, 2 usage or tool error.\n", stream);
-#ifdef TJS_NO_REGEXP
-	fputs("\n"
-		"Warning: this build was compiled with TJS_NO_REGEXP.\n"
-		"Regular-expression syntax may be accepted, but RegExp runtime support is not\n"
-		"included and is not validated by this checker.\n", stream);
-#endif
 }
 
 bool ParseOptions(int argc, wchar_t *argv[], Options &options) {
@@ -231,15 +225,6 @@ int CheckSource(const std::wstring &source, const std::wstring &displayName, boo
 	}
 }
 
-void PrintRegexpWarning() {
-#ifdef TJS_NO_REGEXP
-	fprintf(stderr,
-		"Warning: this build was compiled with TJS_NO_REGEXP.\n"
-		"Regular-expression syntax may be accepted, but RegExp runtime support is not\n"
-		"included and is not validated by this checker.\n");
-#endif
-}
-
 } // namespace
 
 int wmain(int argc, wchar_t *argv[]) {
@@ -267,7 +252,6 @@ int wmain(int argc, wchar_t *argv[]) {
 		if (options.Mode == InputMode::File && bytes.size() >= 8 &&
 			TJS::tTJSByteCodeLoader::IsTJS2ByteCode(bytes.data())) {
 			fprintf(stdout, "OK (compiled bytecode)\n");
-			PrintRegexpWarning();
 			return ExitOk;
 		}
 
@@ -280,7 +264,6 @@ int wmain(int argc, wchar_t *argv[]) {
 		displayName = options.Mode == InputMode::File ? options.Value : L"<stdin>";
 	}
 
-	PrintRegexpWarning();
 	try {
 		return CheckSource(source, displayName, expression);
 	} catch (const std::exception &e) {
