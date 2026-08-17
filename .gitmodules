@@ -12,7 +12,7 @@
 	url = https://github.com/krkrz/libpng.git
 [submodule "external/onig"]
 	path = external/onig
-	url = https://github.com/krkrz/oniguruma.git
+	url = https://github.com/Devyatyi9/oniguruma.git
 [submodule "external/zlib"]
 	path = external/zlib
 	url = https://github.com/krkrz/zlib.git
