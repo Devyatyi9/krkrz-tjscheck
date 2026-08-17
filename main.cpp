@@ -18,6 +18,7 @@
 #include "tjsError.h"
 #include "tjsException.h"
 #include "tjsByteCodeLoader.h"
+#include "tjsRegExp.h"
 
 // Stubs for features not needed in syntax-only mode.
 namespace TJS {
@@ -42,7 +43,8 @@ enum ExitCode {
 enum class InputMode {
 	File,
 	Expression,
-	Stdin
+	Stdin,
+	RegExp
 };
 
 struct Options {
@@ -57,13 +59,16 @@ void PrintUsage(FILE *stream) {
 		"  tjscheck <file.tjs>\n"
 		"  tjscheck --expression <code>\n"
 		"  tjscheck --stdin\n"
+		"  tjscheck --regexp <pattern> [flags]\n"
 		"\n"
 		"Options:\n"
 		"  -e, --expression <code>  Check one TJS expression\n"
 		"  -s, --stdin              Read a standalone TJS script from standard input\n"
+		"  -r, --regexp <pattern>   Compile a TJS RegExp pattern without running TJS\n"
 		"  -h, --help               Show this help\n"
 		"\n"
-		"Exit codes: 0 valid syntax, 1 syntax error, 2 usage or tool error.\n", stream);
+		"Regexp flags: g (global), i (ignore case), l (localized collation).\n"
+		"Exit codes: 0 valid input, 1 syntax or RegExp error, 2 usage or tool error.\n", stream);
 }
 
 bool ParseOptions(int argc, wchar_t *argv[], Options &options) {
@@ -90,6 +95,17 @@ bool ParseOptions(int argc, wchar_t *argv[], Options &options) {
 			if (inputSpecified) return false;
 			options.Mode = InputMode::Stdin;
 			inputSpecified = true;
+			continue;
+		}
+		if (!endOfOptions && (wcscmp(arg, L"--regexp") == 0 || wcscmp(arg, L"-r") == 0)) {
+			if (inputSpecified || ++i == argc) return false;
+			options.Mode = InputMode::RegExp;
+			options.Value = argv[i];
+			inputSpecified = true;
+			if (i + 1 < argc && argv[i + 1][0] != L'-') {
+				options.Value += L'\0';
+				options.Value += argv[++i];
+			}
 			continue;
 		}
 		if (!endOfOptions && arg[0] == L'-') return false;
@@ -225,6 +241,43 @@ int CheckSource(const std::wstring &source, const std::wstring &displayName, boo
 	}
 }
 
+tjs_uint32 GetRegExpOptions(const wchar_t *flags) {
+	tjs_uint32 options = ONIG_OPTION_DEFAULT | ONIG_OPTION_CAPTURE_GROUP | ONIG_OPTION_FIND_NOT_EMPTY;
+	for (; *flags; ++flags) {
+		if (*flags == L'i') options |= ONIG_OPTION_IGNORECASE;
+		else if (*flags != L'g' && *flags != L'l') return 0;
+	}
+	return options;
+}
+
+int CheckRegExp(const std::wstring &value) {
+	std::wstring::size_type separator = value.find(L'\0');
+	std::wstring pattern = value.substr(0, separator);
+	std::wstring flags = separator == std::wstring::npos ? L"" : value.substr(separator + 1);
+	tjs_uint32 options = GetRegExpOptions(flags.c_str());
+	if (options == 0) {
+		fprintf(stderr, "<regexp>: invalid flags: %s\n", ToUtf8(flags).c_str());
+		return ExitToolError;
+	}
+
+	std::wstring normalizedPattern = pattern.empty() ? L"(?:)" : pattern;
+	regex_t *regex = NULL;
+	OnigErrorInfo errorInfo;
+	int result = onig_new(&regex,
+		reinterpret_cast<const UChar *>(normalizedPattern.c_str()),
+		reinterpret_cast<const UChar *>(normalizedPattern.c_str() + normalizedPattern.length()),
+		options & ((ONIG_OPTION_MAXBIT << 1) - 1), ONIG_ENCODING_UTF16_LE, ONIG_SYNTAX_PERL, &errorInfo);
+	if (result != ONIG_NORMAL) {
+		char message[ONIG_MAX_ERROR_MESSAGE_LEN];
+		onig_error_code_to_str(reinterpret_cast<UChar *>(message), result, &errorInfo);
+		fprintf(stderr, "<regexp>: invalid pattern: %s\n", message);
+		return ExitSyntaxError;
+	}
+	onig_free(regex);
+	fprintf(stdout, "OK\n");
+	return ExitOk;
+}
+
 } // namespace
 
 int wmain(int argc, wchar_t *argv[]) {
@@ -236,6 +289,10 @@ int wmain(int argc, wchar_t *argv[]) {
 	if (!ParseOptions(argc, argv, options)) {
 		PrintUsage(stderr);
 		return ExitToolError;
+	}
+
+	if (options.Mode == InputMode::RegExp) {
+		return CheckRegExp(options.Value);
 	}
 
 	std::wstring source;

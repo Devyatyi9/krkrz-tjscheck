@@ -10,15 +10,22 @@ Checks TJS2 script files for syntax errors without executing them.
 tjscheck <file.tjs>
 tjscheck --expression "<code>"
 tjscheck --stdin
+tjscheck --regexp "<pattern>" [flags]
 ```
 
 - `tjscheck -e "<code>"` is the short form of `--expression`; it checks one
   TJS expression without executing it.
 - `tjscheck -s` is the short form of `--stdin`; it reads a standalone TJS script
   from standard input.
+- `tjscheck -r "<pattern>" [flags]` is the short form of `--regexp`; it compiles
+  a pattern with the same Oniguruma UTF-16LE and Perl syntax configuration used
+  by TJS `RegExp`, without executing TJS code. Supported flags are `g`, `i`, and
+  `l`; `g` and `l` are accepted for TJS compatibility and do not change pattern
+  compilation, while `i` enables case-insensitive matching.
 - `tjscheck --help` shows the complete usage.
 - **Exit 0, stdout `OK`** - valid TJS2 syntax.
 - **Exit 1, stderr diagnostic** - invalid TJS syntax.
+- **Exit 1, stderr diagnostic** - invalid RegExp pattern in `--regexp` mode.
 - **Exit 2, stderr diagnostic** - invalid CLI usage, input, encoding, or checker
   error.
 - Options are mutually exclusive. Use `--` before a file name that starts with
@@ -35,7 +42,8 @@ tjscheck --stdin
 ## Limitations
 
 - **ATRI-style fragments** — `function(x){...}` and `%[...]` at top level without `;` are valid in-game (via eval/module) but rejected by standalone parsing. These are not bugs — they require the game's runtime context.
-- **No execution** — `Parse()` only, no bytecode interpretation
+- **No execution** — source modes call `Parse()` only; regexp mode only calls
+  Oniguruma's pattern compiler
 - **No TJS-level tag hooks** — KAG tag interception (`kag.addHook()`, `kag.conductor.onTag`) is a separate concern
 - **No KAG validation** — `.ks` scenario files are not checked
 - **Compiled bytecode** (`TJS2` magic signature) is auto-detected and reported as `OK (compiled bytecode)`
