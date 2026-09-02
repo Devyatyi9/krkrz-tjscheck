@@ -14,7 +14,7 @@ let timers = new Map();
 // copy kept in the open project. The middle one is what makes the extension
 // work on its own, outside any particular workspace.
 function checkerPath() {
-	const configured = vscode.workspace.getConfiguration("tjs").get("checkerPath");
+	const configured = vscode.workspace.getConfiguration("tjscheck").get("checkerPath");
 	if (configured) {
 		return configured;
 	}
@@ -93,7 +93,7 @@ function check(document) {
 }
 
 function schedule(document) {
-	const delay = vscode.workspace.getConfiguration("tjs").get("debounceMs") || 300;
+	const delay = vscode.workspace.getConfiguration("tjscheck").get("debounceMs") || 300;
 	const key = document.uri.toString();
 	clearTimeout(timers.get(key));
 	timers.set(key, setTimeout(() => check(document), delay));

@@ -1,7 +1,7 @@
 {
-  "name": "tjs-syntax",
-  "displayName": "TJS2 syntax",
-  "description": "Highlighting for TJS2, and syntax errors from tjscheck shown in the editor.",
+  "name": "tjs-syntax-check",
+  "displayName": "TJS syntax check",
+  "description": "Reports TJS2 syntax errors from tjscheck in the editor. Highlighting comes from the TJS language extension, which this one adds to rather than replaces.",
   "version": "0.1.0",
   "publisher": "devyatyi9",
   "engines": {
@@ -16,35 +16,15 @@
     "onLanguage:tjs"
   ],
   "contributes": {
-    "languages": [
-      {
-        "id": "tjs",
-        "aliases": [
-          "TJS2",
-          "tjs"
-        ],
-        "extensions": [
-          ".tjs"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "tjs",
-        "scopeName": "source.tjs",
-        "path": "./syntaxes/tjs.tmLanguage.json"
-      }
-    ],
     "configuration": {
-      "title": "TJS2",
+      "title": "TJS syntax check",
       "properties": {
-        "tjs.checkerPath": {
+        "tjscheck.checkerPath": {
           "type": "string",
           "default": "",
           "description": "Path to tjscheck.exe. Empty looks beside the extension, then one level up for a build of this repository, then on PATH."
         },
-        "tjs.debounceMs": {
+        "tjscheck.debounceMs": {
           "type": "number",
           "default": 300,
           "description": "How long to wait after typing stops before checking."
