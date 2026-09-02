@@ -1,0 +1,180 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "TJS2",
+  "scopeName": "source.tjs",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#octet"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#dictionary"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#declaration"
+    },
+    {
+      "include": "#operators"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.tjs",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.tjs",
+          "begin": "\\/\\\\*",
+          "end": "\\\\*\\/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.interpolated.tjs",
+          "begin": "@\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.tjs",
+              "match": "\\\\."
+            },
+            {
+              "name": "meta.embedded.expression.tjs",
+              "begin": "\\\\$\\\\{",
+              "end": "\\\\}",
+              "patterns": [
+                {
+                  "include": "$self"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.tjs",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.tjs",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.tjs",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.tjs",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "octet": {
+      "name": "string.other.octet.tjs",
+      "begin": "<%",
+      "end": "%>"
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.tjs",
+          "match": "\\b0[xX][0-9a-fA-F]+(\\.[0-9a-fA-F]*)?([pP][-+]?[0-9]+)?"
+        },
+        {
+          "name": "constant.numeric.binary.tjs",
+          "match": "\\b0[bB][01]+\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.tjs",
+          "match": "\\b[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?"
+        }
+      ]
+    },
+    "dictionary": {
+      "name": "punctuation.section.dictionary.tjs",
+      "match": "%\\["
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.tjs",
+          "match": "\\b(if|else|while|do|for|switch|case|default|break|continue|return|goto|try|catch|finally|throw|with|in|synchronized|debugger)\\b"
+        },
+        {
+          "name": "storage.type.tjs",
+          "match": "\\b(var|const|class|extends|function|property|getter|setter|static|enum|export|import|private|protected|public)\\b"
+        },
+        {
+          "name": "support.type.primitive.tjs",
+          "match": "\\b(int|real|string|octet)\\b"
+        },
+        {
+          "name": "constant.language.tjs",
+          "match": "\\b(true|false|null|void|NaN|Infinity)\\b"
+        },
+        {
+          "name": "variable.language.tjs",
+          "match": "\\b(this|super|global)\\b"
+        },
+        {
+          "name": "keyword.operator.word.tjs",
+          "match": "\\b(new|delete|typeof|instanceof|incontextof|isvalid|invalidate)\\b"
+        }
+      ]
+    },
+    "declaration": {
+      "patterns": [
+        {
+          "match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.tjs"
+            },
+            "2": {
+              "name": "entity.name.type.class.tjs"
+            }
+          }
+        },
+        {
+          "match": "\\b(function|property)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "storage.type.tjs"
+            },
+            "2": {
+              "name": "entity.name.function.tjs"
+            }
+          }
+        },
+        {
+          "name": "meta.function-call.tjs",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(?=\\s*\\()"
+        }
+      ]
+    },
+    "operators": {
+      "name": "keyword.operator.tjs",
+      "match": "===|!==|<->|>>>|\\|\\||&&|\\+\\+|--|[-+*/%&|^!~<>=]=?"
+    }
+  }
+}
