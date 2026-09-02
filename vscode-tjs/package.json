@@ -2,7 +2,7 @@
   "name": "tjs-syntax-check",
   "displayName": "TJS syntax check",
   "description": "Reports TJS2 syntax errors from tjscheck in the editor. Highlighting comes from the TJS language extension, which this one adds to rather than replaces.",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "publisher": "devyatyi9",
   "engines": {
     "vscode": "^1.75.0"
@@ -31,5 +31,17 @@
         }
       }
     }
-  }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Devyatyi9/krkrz-tjscheck.git"
+  },
+  "keywords": [
+    "tjs",
+    "tjs2",
+    "kirikiri",
+    "krkrz",
+    "linter"
+  ]
 }

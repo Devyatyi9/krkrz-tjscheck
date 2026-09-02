@@ -27,21 +27,34 @@ instead:
 npx @vscode/vsce package
 ```
 
-and install the resulting `.vsix` from the Extensions view. A linked extension
+and install the resulting `.vsix` from the Extensions view. Copy `tjscheck.exe`
+into this folder first and it travels with the package; it is ignored by git,
+so it will not be committed. A linked extension
 does not appear under the Marketplace tab; look for it under `@installed`.
 
 ## Settings
 
-`tjscheck.checkerPath` — where `tjscheck.exe` is. Left empty it looks beside the
-extension first, where a shipped copy belongs, then one level up for a build of
-this repository, and finally on `PATH`. Nothing is taken from the open
-workspace: that would pick up an unrelated file of the same name.
+`tjscheck.checkerPath` — where `tjscheck.exe` is. A packaged build carries the
+checker inside it, so this normally needs no value. Left empty it looks beside
+the extension first, then one level up for a build of this repository, and
+finally on `PATH`. Nothing is taken from the open workspace: that would pick up
+an unrelated file of the same name.
 
 `tjscheck.debounceMs` — how long to wait after typing stops, 300 ms by default.
-A run costs about 7 ms, so a shorter wait is affordable.
+A run takes roughly 100 ms through this path — the checker itself needs about
+7 ms, the rest is starting a process and handing it the buffer — so a shorter
+wait mostly means more processes rather than faster answers.
 
 If the checker is found nowhere, the extension says so once rather than
 reporting a clean file.
+
+## Where to look
+
+Errors land in the Problems panel and under the text itself, not in Output.
+
+The **TJS syntax check** output channel is for the extension rather than the
+file: which checker it settled on, and a line per run with the result and how
+long it took. That is what separates "this file is fine" from "nothing ran".
 
 ## What it reports
 

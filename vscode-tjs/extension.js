@@ -8,6 +8,7 @@ const fs = require("fs");
 const ERROR_LINE = /^(.+?):(\d+):(\d+):\s*(.+)$/;
 
 let diagnostics;
+let output;
 let timers = new Map();
 
 // Configured path first, then the checker built beside this extension, then a
@@ -33,6 +34,16 @@ function checkerPath() {
 	}
 	// Left bare so the system resolves it on PATH.
 	return "tjscheck.exe";
+}
+
+let announcedChecker = "";
+
+function noteChecker(checker) {
+	if (announcedChecker === checker) {
+		return;
+	}
+	announcedChecker = checker;
+	output.appendLine("checker: " + checker);
 }
 
 function report(document, output) {
@@ -66,7 +77,7 @@ function announceMissingChecker(checker) {
 	missingCheckerAnnounced = true;
 	vscode.window.showWarningMessage(
 		"tjscheck was not found (" + checker + "). TJS files will not be " +
-		"checked until tjs.checkerPath points at it.");
+		"checked until tjscheck.checkerPath points at it.");
 }
 
 function check(document) {
@@ -78,16 +89,24 @@ function check(document) {
 		diagnostics.set(document.uri, []);
 		return;
 	}
+	noteChecker(checker);
+	const name = path.basename(document.fileName);
+	const started = Date.now();
 	const child = execFile(checker, ["--stdin"], { timeout: 5000 },
 		(error, stdout, stderr) => {
+			const took = Date.now() - started;
 			// A checker that cannot be run must say so: silence here is
 			// indistinguishable from a file with nothing wrong in it.
 			if (error && error.code === "ENOENT") {
+				output.appendLine(name + ": checker could not be run");
 				announceMissingChecker(checker);
 				diagnostics.set(document.uri, []);
 				return;
 			}
-			report(document, (stdout || "") + (stderr || ""));
+			const text = ((stdout || "") + (stderr || "")).trim();
+			output.appendLine(name + ": " + (text || "no syntax errors") +
+				" (" + took + "ms)");
+			report(document, text);
 		});
 	child.stdin.end(document.getText());
 }
@@ -101,7 +120,9 @@ function schedule(document) {
 
 function activate(context) {
 	diagnostics = vscode.languages.createDiagnosticCollection("tjs");
-	context.subscriptions.push(diagnostics);
+	output = vscode.window.createOutputChannel("TJS syntax check");
+	context.subscriptions.push(diagnostics, output);
+	output.appendLine("TJS syntax check started");
 	context.subscriptions.push(
 		vscode.workspace.onDidOpenTextDocument(check),
 		vscode.workspace.onDidChangeTextDocument((event) => schedule(event.document)),

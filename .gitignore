@@ -17,3 +17,5 @@
 *.bak
 *.map
 .vs/
+# VSCode extension packages
+*.vsix
