@@ -4,6 +4,10 @@ A minimal command-line TJS2 syntax validator extracted from [KiriKiri-Z](https:/
 
 Checks TJS2 script files for syntax errors without executing them.
 
+For the other half — actually running a script, outside the game, to catch the
+runtime failures parsing cannot see — see [README-tjsbox.md](README-tjsbox.md).
+Both tools share the same sources; only the entry point differs.
+
 ## Usage
 
 ```
