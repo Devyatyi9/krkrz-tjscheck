@@ -16,6 +16,7 @@ dump (`E06D7363.?AVeTJSError@TJS@@`). Here it is one line with a line number.
 tjsbox <file.tjs>
 tjsbox --stdin
 tjsbox --disasm <file.tjs>
+tjsbox --advise <file.tjs>
 tjsbox --help
 ```
 
@@ -52,6 +53,38 @@ It is not a checker, and is not on the way to becoming one. The listing shows
 the guard, but nothing in it says which functions the engine will call, and that
 is the half that decides whether a missing guard matters. Testing against stubs
 answers the same question directly and without heuristics.
+
+## Advice
+
+`--advise` runs the script and then reports one thing:
+
+```
+advice: hook.tjs installed as 'onTag' calls '__orig' without checking it is
+        still there
+        guard it: if (typeof x.__orig == "Object") x.__orig(...)
+```
+
+That is the shape that took the game down twice. A wrapper installed on an
+engine object cannot be taken off one that a later scene replaced, so it
+outlives its own setup and finds the member it saved gone; on the engine's
+dispatch path the resulting exception is caught by nothing and the process
+disappears without a line in any log.
+
+The rule is read off the bytecode: an assignment names its member in the line's
+own comment, a function value carries the address its context header repeats,
+and a `typeof` guard compiles to a `typeofd` naming what it tested. Three
+narrowings keep it quiet — only functions actually installed on something, only
+names the script itself stored (so ordinary calls are not candidates), and only
+calls outside a `try` region, which the `entry`/`extry` pair marks.
+
+Advice never changes the exit code, and is skipped entirely when the script
+failed, so it cannot bury the error that matters.
+
+**One rule, deliberately.** Every rule here must point at a failure that was
+actually measured in the game, not at something that looks wrong. A rule written
+from a plausible-sounding hunch produces confident, repeated, wrong advice — the
+sandbox stubs are dictionaries, for instance, and a rule about unqualified
+global names would fire on code the game runs perfectly well.
 
 ## Reporting a value
 
@@ -116,5 +149,7 @@ needs the real thing, add `base/` to the project then, for that reason.
 Covers what the sandbox exists for: a value reported through `return`, a
 trailing expression reporting nothing, a call on a `void` member failing with a
 line number, the guarded form surviving, an exception carrying its message, a
-syntax error still stopping before anything runs, and `--disasm` listing a
-script that would have failed had it run.
+syntax error still stopping before anything runs, `--disasm` listing a script
+that would have failed had it run, and `--advise` firing on the unguarded
+call-through, staying quiet on the guarded one and on a call inside `try`, and
+leaving a real error unburied.

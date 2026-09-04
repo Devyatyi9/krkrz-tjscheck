@@ -109,6 +109,41 @@ o.f = function() {
 o.f();
 '@
 
+# --advise: the rule fires on the shape that actually took the game down.
+Assert-Case -Name 'advise catches an unguarded call-through' -Switches '--advise' -ExpectedExit 0 -ExpectedMatch "calls '__orig' without checking" -Source @'
+var kag = %[ conductor: %[ onTag: function(t) { return "orig:" + t; } ] ];
+kag.conductor.__orig = kag.conductor.onTag;
+kag.conductor.onTag = function(tag) { return this.__orig(tag); };
+return kag.conductor.onTag("msg");
+'@
+
+# ...and stays quiet once the guard is there, or the advice is noise.
+Assert-Case -Name 'advise is quiet on the guarded form' -Switches '--advise' -ExpectedExit 0 -ExpectedMatch 'nothing to report' -Source @'
+var kag = %[ conductor: %[ onTag: function(t) { return "orig:" + t; } ] ];
+kag.conductor.__orig = kag.conductor.onTag;
+kag.conductor.onTag = function(tag) {
+	var r = void;
+	if (typeof this.__orig == "Object") r = this.__orig(tag);
+	return r;
+};
+return kag.conductor.onTag("msg");
+'@
+
+# A call inside try/catch is caught, so it is not the failure being looked for.
+Assert-Case -Name 'advise ignores a call inside try' -Switches '--advise' -ExpectedExit 0 -ExpectedMatch 'nothing to report' -Source @'
+var o = %[];
+o.saved = function() { return 1; };
+o.f = function() { try { return this.saved(); } catch (e) {} };
+return o.f();
+'@
+
+# Advice is advice: a clean run stays exit 0 even when something is reported,
+# and a script that failed reports the failure instead of being lectured.
+Assert-Case -Name 'advise does not bury a real error' -Switches '--advise' -ExpectedExit 1 -ExpectedMatch 'missing' -Source @'
+var o = %[];
+return o.missing();
+'@
+
 if ($script:Failures -gt 0) {
     Write-Host ""
     Write-Host "$($script:Failures) test(s) failed."
