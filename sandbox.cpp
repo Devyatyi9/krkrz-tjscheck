@@ -26,6 +26,7 @@
 #include "tjs.h"
 #include "tjsError.h"
 #include "tjsException.h"
+#include "tjsScriptBlock.h"
 #include "tjsVariant.h"
 
 // Not built here, same as in the checker.
@@ -150,19 +151,68 @@ int Run(const std::wstring &source, const std::wstring &name) {
 	}
 }
 
+// The generator writes its listing through the engine console, so capturing it
+// is a matter of giving the engine somewhere to write.
+class StdoutConsole : public TJS::iTJSConsoleOutput {
+public:
+	void ExceptionPrint(const tjs_char *msg) override {
+		fprintf(stderr, "%s\n", ToUtf8(msg).c_str());
+	}
+	void Print(const tjs_char *msg) override {
+		fprintf(stdout, "%s\n", ToUtf8(msg).c_str());
+	}
+};
+
+int Disasm(const std::wstring &source, const std::wstring &name) {
+	try {
+		TJSWrapper tjs;
+		StdoutConsole console;
+		tjs.SetConsoleOutput(&console);
+
+		// Compiling by hand rather than through ExecScript: the script block is
+		// what holds the generated contexts, and ExecScript does not hand it back.
+		TJS::tTJSScriptBlock block(&tjs, name.c_str(), 0);
+		// The lexer appends a terminator, so leave it room, same as the checker.
+		std::vector<wchar_t> buffer(source.begin(), source.end());
+		buffer.resize(buffer.size() + 2, L'\0');
+		block.Parse(buffer.data(), false, false);
+		block.Dump();
+
+		tjs.SetConsoleOutput(nullptr);
+		return ExitOk;
+	} catch (TJS::eTJSScriptError &e) {
+		fprintf(stderr, "%s: %s\n", ToUtf8(name.c_str()).c_str(),
+		        ToUtf8(e.GetMessage().c_str()).c_str());
+		return ExitScriptError;
+	} catch (TJS::eTJS &e) {
+		fprintf(stderr, "%s: %s\n", ToUtf8(name.c_str()).c_str(),
+		        ToUtf8(e.GetMessage().c_str()).c_str());
+		return ExitScriptError;
+	}
+}
+
 }  // namespace
 
 int wmain(int argc, wchar_t *argv[]) {
-	if (argc != 2 || wcscmp(argv[1], L"--help") == 0 ||
-	    wcscmp(argv[1], L"-h") == 0) {
-		PrintUsage(argc == 2 ? stdout : stderr);
-		return argc == 2 ? ExitOk : ExitToolError;
+	bool disasm = false;
+	int arg = 1;
+	if (argc > 1 && (wcscmp(argv[arg], L"--disasm") == 0 ||
+	                 wcscmp(argv[arg], L"-d") == 0)) {
+		disasm = true;
+		++arg;
+	}
+
+	if (argc - arg != 1 || wcscmp(argv[arg], L"--help") == 0 ||
+	    wcscmp(argv[arg], L"-h") == 0) {
+		bool const asked = argc == 2 && !disasm;
+		PrintUsage(asked ? stdout : stderr);
+		return asked ? ExitOk : ExitToolError;
 	}
 
 	std::vector<unsigned char> bytes;
 	std::wstring name;
 
-	if (wcscmp(argv[1], L"--stdin") == 0 || wcscmp(argv[1], L"-s") == 0) {
+	if (wcscmp(argv[arg], L"--stdin") == 0 || wcscmp(argv[arg], L"-s") == 0) {
 		_setmode(_fileno(stdin), _O_BINARY);
 		if (!ReadAll(stdin, bytes)) {
 			fwprintf(stderr, L"Error: cannot read standard input\n");
@@ -170,18 +220,18 @@ int wmain(int argc, wchar_t *argv[]) {
 		}
 		name = L"<stdin>";
 	} else {
-		FILE *file = _wfopen(argv[1], L"rb");
+		FILE *file = _wfopen(argv[arg], L"rb");
 		if (!file) {
-			fwprintf(stderr, L"Error: cannot open '%s'\n", argv[1]);
+			fwprintf(stderr, L"Error: cannot open '%s'\n", argv[arg]);
 			return ExitToolError;
 		}
 		bool const ok = ReadAll(file, bytes);
 		fclose(file);
 		if (!ok) {
-			fwprintf(stderr, L"Error: cannot read '%s'\n", argv[1]);
+			fwprintf(stderr, L"Error: cannot read '%s'\n", argv[arg]);
 			return ExitToolError;
 		}
-		name = argv[1];
+		name = argv[arg];
 	}
 
 	std::wstring source;
@@ -191,5 +241,5 @@ int wmain(int argc, wchar_t *argv[]) {
 		return ExitToolError;
 	}
 
-	return Run(source, name);
+	return disasm ? Disasm(source, name) : Run(source, name);
 }

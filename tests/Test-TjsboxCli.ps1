@@ -14,13 +14,13 @@ $Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 $script:Failures = 0
 
 function Invoke-Sandbox {
-    param([string]$Source)
+    param([string]$Source, [string[]]$Switches = @())
 
     $file = [System.IO.Path]::GetTempFileName()
     $file = [System.IO.Path]::ChangeExtension($file, '.tjs')
     [System.IO.File]::WriteAllText($file, $Source, $Utf8NoBom)
     try {
-        $out = & $Sandbox $file 2>&1 | ForEach-Object { "$_" }
+        $out = & $Sandbox @Switches $file 2>&1 | ForEach-Object { "$_" }
         [pscustomobject]@{
             ExitCode = $LASTEXITCODE
             Output   = ($out -join "`n")
@@ -35,10 +35,11 @@ function Assert-Case {
         [string]$Name,
         [string]$Source,
         [int]$ExpectedExit,
-        [string]$ExpectedMatch
+        [string]$ExpectedMatch,
+        [string[]]$Switches = @()
     )
 
-    $result = Invoke-Sandbox -Source $Source
+    $result = Invoke-Sandbox -Source $Source -Switches $Switches
     if ($result.ExitCode -ne $ExpectedExit) {
         Write-Host "FAIL $Name : exit $($result.ExitCode), expected $ExpectedExit"
         Write-Host "     output: $($result.Output)"
@@ -95,6 +96,17 @@ throw new Exception("deliberate");
 # Syntax errors still stop before anything runs.
 Assert-Case -Name 'syntax error is reported' -ExpectedExit 1 -ExpectedMatch 'syntax|error' -Source @'
 var a = ;
+'@
+
+# --disasm compiles without running, so a script that would fail at runtime
+# still lists. The check looks for the opcode the guard compiles to, which is
+# what makes the listing worth reading at all.
+Assert-Case -Name 'disasm lists without running' -Switches '--disasm' -ExpectedExit 0 -ExpectedMatch 'typeofd.*"orig"' -Source @'
+var o = %[];
+o.f = function() {
+	if (typeof this.orig == "Object") return this.orig();
+};
+o.f();
 '@
 
 if ($script:Failures -gt 0) {

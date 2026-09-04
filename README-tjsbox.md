@@ -15,6 +15,7 @@ dump (`E06D7363.?AVeTJSError@TJS@@`). Here it is one line with a line number.
 ```
 tjsbox <file.tjs>
 tjsbox --stdin
+tjsbox --disasm <file.tjs>
 tjsbox --help
 ```
 
@@ -25,6 +26,32 @@ tjsbox --help
 
 Encodings match the checker: UTF-16 LE with BOM, UTF-8 with or without one. A
 file that passes `tjscheck` can be handed to `tjsbox` unchanged.
+
+## Disassembly
+
+`--disasm` compiles the script and prints the bytecode the generator emits,
+without running it. It exists to answer what a construct actually compiles to,
+for the times the language reference is silent — where `incontextof` binds, what
+a class member does at construction, why `typeof x.y` does not fail on a missing
+member.
+
+```
+> tjsbox --disasm guard.tjs
+(function expression) (anonymous) 0x00FA5A78
+00000000 typeofd %1, %-1.*0      // *0 = (string)"orig"
+00000004 const   %2, *1          // *1 = (string)"Object"
+00000007 ceq     %1, %2
+00000010 jnf     000000021
+00000012 calld   %1, %-1.*0(%-3) // *0 = (string)"orig"
+```
+
+Member names survive code generation, so the listing is readable rather than
+numeric.
+
+It is not a checker, and is not on the way to becoming one. The listing shows
+the guard, but nothing in it says which functions the engine will call, and that
+is the half that decides whether a missing guard matters. Testing against stubs
+answers the same question directly and without heuristics.
 
 ## Reporting a value
 
@@ -88,5 +115,6 @@ needs the real thing, add `base/` to the project then, for that reason.
 
 Covers what the sandbox exists for: a value reported through `return`, a
 trailing expression reporting nothing, a call on a `void` member failing with a
-line number, the guarded form surviving, an exception carrying its message, and
-a syntax error still stopping before anything runs.
+line number, the guarded form surviving, an exception carrying its message, a
+syntax error still stopping before anything runs, and `--disasm` listing a
+script that would have failed had it run.
